@@ -1,4 +1,5 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
+import { useState } from "react";
 import { 
   Phone, 
   MapPin, 
@@ -9,7 +10,9 @@ import {
   Heart,
   ChevronRight,
   Star,
-  Quote
+  Quote,
+  Menu,
+  X
 } from "lucide-react";
 
 const IMAGES = [
@@ -31,12 +34,21 @@ const REELS = [
 ];
 
 export default function App() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true },
     transition: { duration: 0.8 }
   };
+
+  const navLinks = [
+    { name: "Galeria", href: "#galeria" },
+    { name: "Filmy", href: "#filmy" },
+    { name: "Opinie", href: "#opinie" },
+    { name: "Kontakt", href: "#kontakt" },
+  ];
 
   return (
     <div className="min-h-screen bg-brand-bg font-sans text-brand-text-p selection:bg-brand-accent/30">
@@ -46,12 +58,20 @@ export default function App() {
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-serif font-medium tracking-tight text-brand-accent">Reymontówka</h1>
           </div>
+          
+          {/* Desktop Nav */}
           <div className="hidden items-center gap-8 text-xs font-medium uppercase tracking-[0.2em] text-brand-text-s md:flex">
-            <a href="#galeria" className="hover:text-brand-accent transition-colors">Galeria</a>
-            <a href="#filmy" className="hover:text-brand-accent transition-colors">Filmy</a>
-            <a href="#opinie" className="hover:text-brand-accent transition-colors">Opinie</a>
-            <a href="#kontakt" className="hover:text-brand-accent transition-colors border border-brand-accent/50 px-4 py-2 rounded-sm">Kontakt</a>
+            {navLinks.map((link) => (
+              <a 
+                key={link.name}
+                href={link.href} 
+                className={`hover:text-brand-accent transition-colors ${link.name === 'Kontakt' ? 'border border-brand-accent/50 px-4 py-2 rounded-sm' : ''}`}
+              >
+                {link.name}
+              </a>
+            ))}
           </div>
+
           <div className="flex items-center gap-4">
             <div className="hidden lg:block text-right text-[10px] uppercase tracking-widest text-brand-text-s">
               Zadzwoń: <span className="text-brand-accent block text-sm font-bold">605 309 267</span>
@@ -60,12 +80,61 @@ export default function App() {
               href="https://www.facebook.com/reymontowka" 
               target="_blank" 
               referrerPolicy="no-referrer"
-              className="rounded-sm bg-brand-accent p-2 text-brand-bg hover:opacity-90 transition-all shadow-lg"
+              className="hidden sm:flex rounded-sm bg-brand-accent p-2 text-brand-bg hover:opacity-90 transition-all shadow-lg"
             >
               <Facebook size={20} />
             </a>
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden text-brand-accent p-2 hover:bg-brand-line rounded-md transition-colors"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="md:hidden bg-brand-bg border-b border-brand-line overflow-hidden"
+            >
+              <div className="flex flex-col p-6 gap-6">
+                {navLinks.map((link) => (
+                  <a 
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-lg font-serif italic text-brand-text-p hover:text-brand-accent transition-colors border-b border-brand-line pb-4"
+                  >
+                    {link.name}
+                  </a>
+                ))}
+                <div className="flex items-center justify-between pt-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-widest text-brand-text-s mb-1">Zadzwoń do nas</p>
+                    <a href="tel:605309267" className="text-xl font-bold text-brand-accent">605 309 267</a>
+                  </div>
+                  <a 
+                    href="https://www.facebook.com/reymontowka" 
+                    target="_blank" 
+                    referrerPolicy="no-referrer"
+                    className="rounded-sm bg-brand-accent p-3 text-brand-bg"
+                  >
+                    <Facebook size={24} />
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Hero Section */}
